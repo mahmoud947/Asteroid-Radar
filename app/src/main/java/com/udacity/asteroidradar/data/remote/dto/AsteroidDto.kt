@@ -2,6 +2,11 @@ package com.udacity.asteroidradar.data.remote.dto
 
 import com.squareup.moshi.Json
 
+//data class AsteroidNewWsResponse(
+//    val
+//)
+
+
 data class AsteroidDto(
     val id:String,
     @Json(name = "absolute_magnitude_h")
@@ -11,7 +16,7 @@ data class AsteroidDto(
     @Json(name = "is_potentially_hazardous_asteroid")
     val isPotentiallyHazardous:Boolean,
     @Json(name = "close_approach_data")
-    val closeApproachDataDto: CloseApproachDataDto
+    val closeApproachDataDto: List<CloseApproachDataDto>
 
 )
 
