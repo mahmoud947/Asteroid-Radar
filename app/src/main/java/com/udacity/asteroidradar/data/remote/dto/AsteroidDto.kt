@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.data.remote.dto
 
 import com.squareup.moshi.Json
+import com.udacity.asteroidradar.data.local.entities.AsteroidEntity
 
 //data class AsteroidNewWsResponse(
 //    val
