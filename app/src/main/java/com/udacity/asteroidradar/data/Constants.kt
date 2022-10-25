@@ -7,4 +7,5 @@ object Constants {
     const val API_KEY ="alnvUuTKwyWf49LnxaCpfACalzvLUAZwqYrdYX3X"
     const val CONNECTION_TIMEOUT =30L
     const val READ_TIMEOUT =30L
+    const val DATABASE_NAME="asteroid_database"
 }
