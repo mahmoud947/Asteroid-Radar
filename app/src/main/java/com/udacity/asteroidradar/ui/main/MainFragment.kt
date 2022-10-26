@@ -3,6 +3,7 @@ package com.udacity.asteroidradar.ui.main
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
@@ -11,17 +12,32 @@ import com.udacity.asteroidradar.ui.viewmodels.MainViewModel
 class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by lazy {
-        ViewModelProvider(this).get(MainViewModel::class.java)
+        ViewModelProvider(
+            this,
+            MainViewModel.Factory(appContext = requireContext().applicationContext)
+        )[MainViewModel::class.java]
     }
 
+    private val asteroidsAdapter = AsteroidsAdapter(
+        OnClickListener {
+
+        }
+    )
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentMainBinding.inflate(inflater)
         binding.lifecycleOwner = this
-
         binding.viewModel = viewModel
+        viewModel.asteroids.observe(viewLifecycleOwner,Observer{asteroids->
+            asteroidsAdapter.submitList(asteroids)
+        })
+
+
+        binding.asteroidRecycler.apply {
+            adapter = asteroidsAdapter
+        }
 
 
         setHasOptionsMenu(true)
@@ -37,8 +53,6 @@ class MainFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return true
     }
-
-
 
 
 }

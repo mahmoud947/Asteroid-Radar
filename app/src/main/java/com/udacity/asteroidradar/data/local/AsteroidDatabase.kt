@@ -9,7 +9,8 @@ import com.udacity.asteroidradar.data.local.entities.AsteroidEntity
 
 @Database(
     entities = [AsteroidEntity::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class AsteroidDatabase : RoomDatabase() {
     abstract val asteroidDao: AsteroidDao
@@ -18,12 +19,14 @@ abstract class AsteroidDatabase : RoomDatabase() {
     companion object {
         private lateinit var INSTANCE: AsteroidDatabase
         fun getInstance(context: Context): AsteroidDatabase {
-            if (!::INSTANCE.isInitialized) {
-                INSTANCE = Room.databaseBuilder(
-                    context.applicationContext,
-                    AsteroidDatabase::class.java,
-                    Constants.DATABASE_NAME
-                ).build()
+            synchronized(this){
+                if (!::INSTANCE.isInitialized) {
+                    INSTANCE = Room.databaseBuilder(
+                        context.applicationContext,
+                        AsteroidDatabase::class.java,
+                        Constants.DATABASE_NAME
+                    ).build()
+                }
             }
             return INSTANCE
         }
