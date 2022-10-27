@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.R
+import com.udacity.asteroidradar.data.Constants
 import com.udacity.asteroidradar.data.local.AsteroidDatabase
 import com.udacity.asteroidradar.data.local.entities.toDomain
 import com.udacity.asteroidradar.data.remote.AsteroidsNeoWsService
@@ -36,7 +37,7 @@ class AsteroidsRepository(
         MutableLiveData(ConnectionState.Connected())
     val connectionState: LiveData<ConnectionState> = _connectionState
     val pictureOfDay: LiveData<PictureOfDay> =
-        Transformations.map(asteroidDatabase.pictureOfDayDao.getPictureOfTheDay()) {pictureOfDay->
+        Transformations.map(asteroidDatabase.pictureOfDayDao.getPictureOfTheDay()) { pictureOfDay ->
             pictureOfDay?.toDomain()
         }
 
@@ -54,12 +55,16 @@ class AsteroidsRepository(
         }
 
     }
-    suspend fun refreshPictureOfTheDay(){
+
+    suspend fun refreshPictureOfTheDay() {
         when (val networkResult = fetchPictureOfDayFromInternet()) {
             is NetworkResult.OnSuccess -> {
                 val result = networkResult.data
                 result?.let {
-                    asteroidDatabase.pictureOfDayDao.insertImage(it.toEntity())
+                    if (it.mediaType == Constants.IMAGE_MEDIA_TYPE) {
+                        asteroidDatabase.pictureOfDayDao.deletePictureOfTheDay()
+                        asteroidDatabase.pictureOfDayDao.insertImage(it.toEntity())
+                    }
                 }
             }
             is NetworkResult.OnError -> {
