@@ -54,7 +54,7 @@ data class MissDistanceDto(
  * mapping functions
  * convert AsteroidDto to AsteroidEntity that will use with room database
  */
-fun AsteroidDto.toAsteroidEntity(): AsteroidEntity =
+fun AsteroidDto.toEntity(): AsteroidEntity =
     AsteroidEntity(
         id = this.id.toLong(),
         codename = this.name,

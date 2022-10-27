@@ -2,6 +2,7 @@ package com.udacity.asteroidradar.util
 
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.udacity.asteroidradar.R
@@ -45,8 +46,9 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
 @BindingAdapter("imageUrl")
 fun bindImageUrl(imageView: ImageView,url:String?){
     url?.let {
+        val imgUri = url.toUri().buildUpon().scheme("https").build()
         Glide.with(imageView.context)
-            .load(url)
+            .load(imgUri)
             .placeholder(R.drawable.placeholder_picture_of_day)
             .into(imageView)
     }

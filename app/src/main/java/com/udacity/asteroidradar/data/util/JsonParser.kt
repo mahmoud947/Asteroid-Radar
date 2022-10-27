@@ -48,7 +48,7 @@ class JsonParser {
 
 
     @SuppressLint("SimpleDateFormat")
-    private fun getNextSevenDays(): ArrayList<String> {
+     fun getNextSevenDays(): ArrayList<String> {
         val days: ArrayList<String> = arrayListOf()
         val simpleDateFormat: SimpleDateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
         for (i in 0..Constants.DEFAULT_END_DATE_DAYS) {

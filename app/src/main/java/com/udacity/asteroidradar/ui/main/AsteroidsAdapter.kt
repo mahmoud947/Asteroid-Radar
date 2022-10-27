@@ -16,11 +16,11 @@ class AsteroidsAdapter(
 
     companion object DiffCallback : DiffUtil.ItemCallback<Asteroid>() {
         override fun areItemsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean =
-            oldItem === newItem
+            oldItem.id==newItem.id
 
 
         override fun areContentsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean =
-            oldItem.id == newItem.id
+            oldItem == newItem
 
     }
 
