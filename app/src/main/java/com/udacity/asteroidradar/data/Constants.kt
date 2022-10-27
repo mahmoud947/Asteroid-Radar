@@ -8,4 +8,5 @@ object Constants {
     const val CONNECTION_TIMEOUT =30L
     const val READ_TIMEOUT =30L
     const val DATABASE_NAME="asteroid_database"
+    const val IMAGE_MEDIA_TYPE="image"
 }

@@ -6,26 +6,31 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.data.local.AsteroidDao
+import com.udacity.asteroidradar.data.local.AsteroidDatabase
 import com.udacity.asteroidradar.data.local.entities.toDomain
 import com.udacity.asteroidradar.data.remote.AsteroidsNeoWsService
 import com.udacity.asteroidradar.data.remote.dto.AsteroidDto
+import com.udacity.asteroidradar.data.remote.dto.PictureOfDayDto
 import com.udacity.asteroidradar.data.remote.dto.toAsteroidEntity
+import com.udacity.asteroidradar.data.remote.dto.toDomain
 import com.udacity.asteroidradar.data.util.ConnectionState
 import com.udacity.asteroidradar.data.util.JsonParser
 import com.udacity.asteroidradar.data.util.NetworkResult
 import com.udacity.asteroidradar.domain.model.Asteroid
+import com.udacity.asteroidradar.domain.model.PictureOfDay
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
 
 class AsteroidsRepository(
     private val networkService: AsteroidsNeoWsService,
-    private val asteroidDao: AsteroidDao,
+    private val asteroidDatabase: AsteroidDatabase,
     private val context: Context
 ) {
-    val asteroids: LiveData<List<Asteroid>> = Transformations.map(asteroidDao.getAsteroids()) {
-        it.toDomain()
-    }
+    val asteroids: LiveData<List<Asteroid>> =
+        Transformations.map(asteroidDatabase.asteroidDao.getAsteroids()) {
+            it.toDomain()
+        }
     private val _connectionState: MutableLiveData<ConnectionState> =
         MutableLiveData(ConnectionState.Connected())
     val connectionState: LiveData<ConnectionState> = _connectionState
@@ -36,12 +41,24 @@ class AsteroidsRepository(
                 val result = networkResult.data?.map {
                     it.toAsteroidEntity()
                 }?.toTypedArray()
-                asteroidDao.insertAll(* result!!)
+                asteroidDatabase.asteroidDao.insertAll(* result!!)
             }
             is NetworkResult.OnError -> {
-                _connectionState.value = ConnectionState.Disconnected(networkResult.errorMessage!!)
+                _connectionState.postValue(ConnectionState.Disconnected(networkResult.errorMessage!!))
             }
         }
+    }
+
+    suspend fun getPictureOfDayDto(): NetworkResult<PictureOfDay> {
+        return try {
+            val response = networkService.getPictureOfDayDto()
+            NetworkResult.OnSuccess(response.toDomain())
+        } catch (e: IOException) {
+            NetworkResult.OnError(errorMessage = context.getString(R.string.un_known_error))
+        } catch (e: HttpException) {
+            NetworkResult.OnError(errorMessage = context.getString(R.string.check_your_internet_connection))
+        }
+
     }
 
     private suspend fun fetchDataFromInternet(): NetworkResult<List<AsteroidDto>> {
