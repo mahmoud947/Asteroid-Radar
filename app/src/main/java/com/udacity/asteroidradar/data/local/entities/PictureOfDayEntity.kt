@@ -1,12 +1,14 @@
 package com.udacity.asteroidradar.data.local.entities
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.udacity.asteroidradar.domain.model.PictureOfDay
 
 @Entity(tableName = "picture_of_day_entity")
 data class PictureOfDayEntity(
     val mediaType: String,
     val title: String,
+    @PrimaryKey
     val url: String
 )
 

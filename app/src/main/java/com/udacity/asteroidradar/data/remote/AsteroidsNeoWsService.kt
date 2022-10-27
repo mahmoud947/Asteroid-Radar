@@ -37,7 +37,7 @@ interface AsteroidsNeoWsService {
     suspend fun getAsteroids(): String
 
     @GET("/planetary/apod?api_key=${Constants.API_KEY}")
-    suspend fun getPictureOfDayDto(): PictureOfDayDto
+    suspend fun getPictureOfDay(): PictureOfDayDto
 }
 
 object AsteroidNewWsApi {

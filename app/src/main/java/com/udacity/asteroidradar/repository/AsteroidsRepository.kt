@@ -9,11 +9,13 @@ import com.udacity.asteroidradar.data.local.AsteroidDatabase
 import com.udacity.asteroidradar.data.local.entities.toDomain
 import com.udacity.asteroidradar.data.remote.AsteroidsNeoWsService
 import com.udacity.asteroidradar.data.remote.dto.AsteroidDto
+import com.udacity.asteroidradar.data.remote.dto.PictureOfDayDto
 import com.udacity.asteroidradar.data.remote.dto.toEntity
 import com.udacity.asteroidradar.data.util.ConnectionState
 import com.udacity.asteroidradar.data.util.JsonParser
 import com.udacity.asteroidradar.data.util.NetworkResult
 import com.udacity.asteroidradar.domain.model.Asteroid
+import com.udacity.asteroidradar.domain.model.PictureOfDay
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
@@ -33,6 +35,10 @@ class AsteroidsRepository(
     private val _connectionState: MutableLiveData<ConnectionState> =
         MutableLiveData(ConnectionState.Connected())
     val connectionState: LiveData<ConnectionState> = _connectionState
+    val pictureOfDay: LiveData<PictureOfDay> =
+        Transformations.map(asteroidDatabase.pictureOfDayDao.getPictureOfTheDay()) {pictureOfDay->
+            pictureOfDay?.toDomain()
+        }
 
     suspend fun refreshAsteroidDatabase() {
         when (val networkResult = fetchAsteroidsDataFromInternet()) {
@@ -46,18 +52,22 @@ class AsteroidsRepository(
                 _connectionState.postValue(ConnectionState.Disconnected(networkResult.errorMessage!!))
             }
         }
+
+    }
+    suspend fun refreshPictureOfTheDay(){
+        when (val networkResult = fetchPictureOfDayFromInternet()) {
+            is NetworkResult.OnSuccess -> {
+                val result = networkResult.data
+                result?.let {
+                    asteroidDatabase.pictureOfDayDao.insertImage(it.toEntity())
+                }
+            }
+            is NetworkResult.OnError -> {
+                _connectionState.postValue(ConnectionState.Disconnected(networkResult.errorMessage!!))
+            }
+        }
     }
 
-//    suspend fun getPictureOfDayDto(): NetworkResult<PictureOfDay> {
-//        return try {
-//            val response = networkService.getPictureOfDayDto()
-//            NetworkResult.OnSuccess(response.toDomain())
-//        } catch (e: IOException) {
-//            NetworkResult.OnError(errorMessage = context.getString(R.string.un_known_error))
-//        } catch (e: HttpException) {
-//            NetworkResult.OnError(errorMessage = context.getString(R.string.check_your_internet_connection))
-//        }
-//    }
 
     fun getAsteroid(filter: AsteroidsFilter = AsteroidsFilter.WEEK): LiveData<List<Asteroid>> {
         return when (filter) {
@@ -94,6 +104,17 @@ class AsteroidsRepository(
             val asteroidsDto =
                 JsonParser.getInstance().parseJsonResultAsAsteroid(jsonObject = jsonObject)
             NetworkResult.OnSuccess(asteroidsDto)
+        } catch (e: IOException) {
+            NetworkResult.OnError(errorMessage = context.getString(R.string.un_known_error))
+        } catch (e: HttpException) {
+            NetworkResult.OnError(errorMessage = context.getString(R.string.check_your_internet_connection))
+        }
+    }
+
+    private suspend fun fetchPictureOfDayFromInternet(): NetworkResult<PictureOfDayDto> {
+        return try {
+            val response = networkService.getPictureOfDay()
+            NetworkResult.OnSuccess(response)
         } catch (e: IOException) {
             NetworkResult.OnError(errorMessage = context.getString(R.string.un_known_error))
         } catch (e: HttpException) {

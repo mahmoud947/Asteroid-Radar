@@ -26,5 +26,4 @@ interface AsteroidDao {
     @Query("DELETE FROM asteroid_entity")
     suspend fun clear()
 
-
 }

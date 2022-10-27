@@ -6,14 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.udacity.asteroidradar.data.Constants
 import com.udacity.asteroidradar.data.local.entities.AsteroidEntity
+import com.udacity.asteroidradar.data.local.entities.PictureOfDayEntity
 
 @Database(
-    entities = [AsteroidEntity::class],
+    entities = [AsteroidEntity::class,PictureOfDayEntity::class],
     version = 1,
     exportSchema = false
 )
 abstract class AsteroidDatabase : RoomDatabase() {
     abstract val asteroidDao: AsteroidDao
+    abstract val pictureOfDayDao:PictureOfDayDao
 
     // singleton pattern
     companion object {

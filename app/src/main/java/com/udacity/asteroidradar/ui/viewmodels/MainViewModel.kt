@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.ui.viewmodels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -18,6 +19,7 @@ import com.udacity.asteroidradar.repository.AsteroidsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.system.measureTimeMillis
 
 class MainViewModel(
     appContext: Context
@@ -32,7 +34,7 @@ class MainViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.refreshAsteroidDatabase()
-                handelPictureOfDay()
+                repository.refreshPictureOfTheDay()
             }
         }
     }
@@ -41,29 +43,13 @@ class MainViewModel(
     private val _navigateToDetail: MutableLiveData<Asteroid> = MutableLiveData()
     val navigateToDetail: LiveData<Asteroid> get() = _navigateToDetail
 
-    private val _pictureOfDay: MutableLiveData<PictureOfDay> = MutableLiveData()
-    val pictureOfDay: LiveData<PictureOfDay> get() = _pictureOfDay
-
     private val _filter: MutableLiveData<AsteroidsFilter> = MutableLiveData(AsteroidsFilter.TODAY)
 
-    val asteroids = Transformations.switchMap(_filter){
+    val asteroids = Transformations.switchMap(_filter) {
         repository.getAsteroid(it)
     }
+    val pictureOfDay = repository.pictureOfDay
 
-
-    private suspend fun handelPictureOfDay() {
-        val result = repository.getPictureOfDayDto()
-        when (result) {
-            is NetworkResult.OnSuccess -> {
-                val data = result.data
-                if (data?.mediaType == Constants.IMAGE_MEDIA_TYPE)
-                    _pictureOfDay.postValue(result.data)
-            }
-            is NetworkResult.OnError -> {
-
-            }
-        }
-    }
 
     fun onNavigateToDetail(asteroid: Asteroid) {
         _navigateToDetail.value = asteroid
