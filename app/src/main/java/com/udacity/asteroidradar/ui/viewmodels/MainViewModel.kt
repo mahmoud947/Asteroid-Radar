@@ -45,8 +45,8 @@ class MainViewModel(
 
     init {
         viewModelScope.launch {
-            handelError(repository.refreshAsteroidDatabase())
-            handelError(repository.refreshPictureOfTheDay())
+            handelError(repository.refreshAsteroidDatabase(), context = appContext)
+
         }
     }
 
@@ -68,14 +68,16 @@ class MainViewModel(
     }
 
 
-    private suspend fun handelError(networkResult: NetworkResult<Unit>) {
+    private suspend fun handelError(networkResult: NetworkResult<Unit>,context: Context) {
         withContext(Dispatchers.IO) {
             when (networkResult) {
+
                 is NetworkResult.OnError -> {
-                    _connectionState.postValue(ConnectionState.Disconnected(message = networkResult.errorMessage!!))
+                    _connectionState.postValue(ConnectionState.Disconnected(message = context.getString(networkResult.errorMessage!!)))
                 }
                 is NetworkResult.OnSuccess -> {
-                    _connectionState.postValue(ConnectionState.Connected())
+                    repository.refreshPictureOfTheDay()
+                    _connectionState.postValue(ConnectionState.Connected(message = context.getString(R.string.you_are_online)))
                 }
             }
         }

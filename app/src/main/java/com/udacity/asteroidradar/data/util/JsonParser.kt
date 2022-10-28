@@ -1,7 +1,6 @@
 package com.udacity.asteroidradar.data.util
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -25,8 +24,8 @@ class JsonParser {
      * and using moshi Instance to convert from json object to AsteroidDto
      * then it's return List of AsteroidDto
      */
-     fun parseJsonResultAsAsteroid(jsonObject: JSONObject): List<AsteroidDto> {
-        Log.i("object", jsonObject.toString())//Todo:Use Temper
+    fun parseJsonResultAsAsteroid(jsonObject: JSONObject): List<AsteroidDto> {
+        // Timber.i( jsonObject.toString())
         val days = getNextSevenDays()
         val nearEarthObjectsJson = jsonObject.getJSONObject("near_earth_objects")
         val asteroids: ArrayList<AsteroidDto> = arrayListOf()
@@ -48,7 +47,7 @@ class JsonParser {
 
 
     @SuppressLint("SimpleDateFormat")
-     fun getNextSevenDays(): ArrayList<String> {
+    fun getNextSevenDays(): ArrayList<String> {
         val days: ArrayList<String> = arrayListOf()
         val simpleDateFormat: SimpleDateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
         for (i in 0..Constants.DEFAULT_END_DATE_DAYS) {

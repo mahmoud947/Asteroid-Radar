@@ -24,4 +24,5 @@
     <string name="un_known_error">Un Known Error!</string>
     <string name="check_your_internet_connection">please check your internet connection and try agn !</string>
     <string name="server_error">server error please try again later</string>
+    <string name="you_are_online">you are online</string>
 </resources>

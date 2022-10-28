@@ -3,11 +3,13 @@ package com.udacity.asteroidradar.ui.main
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import android.widget.Toast.makeText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.data.util.ConnectionState
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
@@ -57,19 +59,11 @@ class MainFragment : Fragment() {
             connectionState.let {
                 when (it) {
                     is ConnectionState.Connected -> {
-                        Toast.makeText(
-                            requireContext(),
-                            "connected",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showSnackBar(it.message!!)
                         viewModel.onUpdateConnectionStateCompleted()
                     }
                     is ConnectionState.Disconnected -> {
-                        Toast.makeText(
-                            requireContext(),
-                            it.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showSnackBar(it.message!!)
                         viewModel.onUpdateConnectionStateCompleted()
 
                     }
@@ -101,6 +95,10 @@ class MainFragment : Fragment() {
 
     private fun onNavigate(asteroid: Asteroid) {
         navController.navigate(MainFragmentDirections.actionShowDetail(asteroid))
+    }
+
+    private fun showSnackBar(message:String){
+        Snackbar.make(requireActivity().findViewById(R.id.nav_host_fragment),message,Snackbar.LENGTH_SHORT).show()
     }
 
 }

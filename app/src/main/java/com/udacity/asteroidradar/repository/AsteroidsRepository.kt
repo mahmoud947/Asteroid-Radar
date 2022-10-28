@@ -67,7 +67,7 @@ class AsteroidsRepository(
     suspend fun refreshAsteroidDatabase(): NetworkResult<Unit> {
         return try {
             val response = networkService.getAsteroids()
-            val jsonObject: JSONObject = JSONObject(response)
+            val jsonObject = JSONObject(response)
             val asteroidsDto =
                 JsonParser.getInstance().parseJsonResultAsAsteroid(jsonObject = jsonObject)
             asteroidDatabase.asteroidDao.insertAll(*asteroidsDto.toEntity())
@@ -75,16 +75,15 @@ class AsteroidsRepository(
 
         } catch (e: IOException) {
             NetworkResult.OnError(
-                errorMessage = Resources.getSystem()
-                    .getString(R.string.check_your_internet_connection)
+                errorMessage = R.string.check_your_internet_connection
             )
         } catch (e: HttpException) {
             NetworkResult.OnError(
-                errorMessage = Resources.getSystem().getString(R.string.server_error)
+                errorMessage = R.string.server_error
             )
         } catch (e: Exception) {
             NetworkResult.OnError(
-                errorMessage = Resources.getSystem().getString(R.string.un_known_error)
+                errorMessage = R.string.un_known_error
             )
         }
     }
@@ -96,16 +95,15 @@ class AsteroidsRepository(
             NetworkResult.OnSuccess(Unit)
         } catch (e: IOException) {
             NetworkResult.OnError(
-                errorMessage = Resources.getSystem()
-                    .getString(R.string.check_your_internet_connection)
+                errorMessage = R.string.check_your_internet_connection
             )
         } catch (e: HttpException) {
             NetworkResult.OnError(
-                errorMessage = Resources.getSystem().getString(R.string.server_error)
+                errorMessage = R.string.server_error
             )
         } catch (e: Exception) {
             NetworkResult.OnError(
-                errorMessage = Resources.getSystem().getString(R.string.un_known_error)
+                errorMessage = R.string.un_known_error
             )
         }
     }
