@@ -8,9 +8,11 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.data.Constants
 import com.udacity.asteroidradar.data.local.AsteroidDatabase
 import com.udacity.asteroidradar.data.remote.AsteroidNewWsApi
+import com.udacity.asteroidradar.data.util.ConnectionState
 import com.udacity.asteroidradar.data.util.NetworkResult
 import com.udacity.asteroidradar.domain.model.Asteroid
 import com.udacity.asteroidradar.domain.model.PictureOfDay
@@ -24,31 +26,29 @@ import kotlin.system.measureTimeMillis
 class MainViewModel(
     appContext: Context
 ) : ViewModel() {
-    private val repository: AsteroidsRepository = AsteroidsRepository(
-        AsteroidNewWsApi.getInstance(),
-        AsteroidDatabase.getInstance(context = appContext),
-        appContext
-    )
 
-    init {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                repository.refreshAsteroidDatabase()
-                repository.refreshPictureOfTheDay()
-            }
-        }
-    }
-
+    private val repository: AsteroidsRepository = AsteroidsRepository.getInstance(appContext)
 
     private val _navigateToDetail: MutableLiveData<Asteroid> = MutableLiveData()
     val navigateToDetail: LiveData<Asteroid> get() = _navigateToDetail
 
     private val _filter: MutableLiveData<AsteroidsFilter> = MutableLiveData(AsteroidsFilter.TODAY)
-
     val asteroids = Transformations.switchMap(_filter) {
         repository.getAsteroid(it)
     }
+
+    private val _connectionState: MutableLiveData<ConnectionState?> = MutableLiveData(null)
+    val connectionState: LiveData<ConnectionState?> get() = _connectionState
+
     val pictureOfDay = repository.pictureOfDay
+
+
+    init {
+        viewModelScope.launch {
+            handelError(repository.refreshAsteroidDatabase())
+            handelError(repository.refreshPictureOfTheDay())
+        }
+    }
 
 
     fun onNavigateToDetail(asteroid: Asteroid) {
@@ -61,6 +61,24 @@ class MainViewModel(
 
     fun updateFilter(filter: AsteroidsFilter) {
         _filter.value = filter
+    }
+
+    fun onUpdateConnectionStateCompleted() {
+        _connectionState.value = null
+    }
+
+
+    private suspend fun handelError(networkResult: NetworkResult<Unit>) {
+        withContext(Dispatchers.IO) {
+            when (networkResult) {
+                is NetworkResult.OnError -> {
+                    _connectionState.postValue(ConnectionState.Disconnected(message = networkResult.errorMessage!!))
+                }
+                is NetworkResult.OnSuccess -> {
+                    _connectionState.postValue(ConnectionState.Connected())
+                }
+            }
+        }
     }
 
 

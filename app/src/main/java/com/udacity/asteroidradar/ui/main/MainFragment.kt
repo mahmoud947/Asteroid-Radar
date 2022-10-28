@@ -2,12 +2,14 @@ package com.udacity.asteroidradar.ui.main
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.R
+import com.udacity.asteroidradar.data.util.ConnectionState
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 import com.udacity.asteroidradar.domain.model.Asteroid
 import com.udacity.asteroidradar.repository.AsteroidsFilter
@@ -24,7 +26,7 @@ class MainFragment : Fragment() {
     private lateinit var navController: NavController
     private val asteroidsAdapter = AsteroidsAdapter(
         OnClickListener {
-                viewModel.onNavigateToDetail(it)
+            viewModel.onNavigateToDetail(it)
         }
     )
 
@@ -51,6 +53,30 @@ class MainFragment : Fragment() {
             }
         })
 
+        viewModel.connectionState.observe(viewLifecycleOwner, Observer { connectionState ->
+            connectionState.let {
+                when (it) {
+                    is ConnectionState.Connected -> {
+                        Toast.makeText(
+                            requireContext(),
+                            "connected",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        viewModel.onUpdateConnectionStateCompleted()
+                    }
+                    is ConnectionState.Disconnected -> {
+                        Toast.makeText(
+                            requireContext(),
+                            it.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        viewModel.onUpdateConnectionStateCompleted()
+
+                    }
+                }
+            }
+        })
+
 
         setHasOptionsMenu(true)
 
@@ -64,10 +90,10 @@ class MainFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.updateFilter(
-            when(item.itemId){
-                R.id.saved_menu ->AsteroidsFilter.SAVED
-                R.id.week_menu ->AsteroidsFilter.WEEK
-                else->AsteroidsFilter.TODAY
+            when (item.itemId) {
+                R.id.saved_menu -> AsteroidsFilter.SAVED
+                R.id.week_menu -> AsteroidsFilter.WEEK
+                else -> AsteroidsFilter.TODAY
             }
         )
         return true

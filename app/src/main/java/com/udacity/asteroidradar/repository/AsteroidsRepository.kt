@@ -1,18 +1,16 @@
 package com.udacity.asteroidradar.repository
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.R
-import com.udacity.asteroidradar.data.Constants
 import com.udacity.asteroidradar.data.local.AsteroidDatabase
 import com.udacity.asteroidradar.data.local.entities.toDomain
+import com.udacity.asteroidradar.data.remote.AsteroidNewWsApi
 import com.udacity.asteroidradar.data.remote.AsteroidsNeoWsService
-import com.udacity.asteroidradar.data.remote.dto.AsteroidDto
-import com.udacity.asteroidradar.data.remote.dto.PictureOfDayDto
 import com.udacity.asteroidradar.data.remote.dto.toEntity
-import com.udacity.asteroidradar.data.util.ConnectionState
 import com.udacity.asteroidradar.data.util.JsonParser
 import com.udacity.asteroidradar.data.util.NetworkResult
 import com.udacity.asteroidradar.domain.model.Asteroid
@@ -29,49 +27,13 @@ enum class AsteroidsFilter {
 
 class AsteroidsRepository(
     private val networkService: AsteroidsNeoWsService,
-    private val asteroidDatabase: AsteroidDatabase,
-    private val context: Context
+    private val asteroidDatabase: AsteroidDatabase
 ) {
 
-    private val _connectionState: MutableLiveData<ConnectionState> =
-        MutableLiveData(ConnectionState.Connected())
-    val connectionState: LiveData<ConnectionState> = _connectionState
     val pictureOfDay: LiveData<PictureOfDay> =
         Transformations.map(asteroidDatabase.pictureOfDayDao.getPictureOfTheDay()) { pictureOfDay ->
             pictureOfDay?.toDomain()
         }
-
-    suspend fun refreshAsteroidDatabase() {
-        when (val networkResult = fetchAsteroidsDataFromInternet()) {
-            is NetworkResult.OnSuccess -> {
-                val result = networkResult.data?.map {
-                    it.toEntity()
-                }?.toTypedArray()
-                asteroidDatabase.asteroidDao.insertAll(* result!!)
-            }
-            is NetworkResult.OnError -> {
-                _connectionState.postValue(ConnectionState.Disconnected(networkResult.errorMessage!!))
-            }
-        }
-
-    }
-
-    suspend fun refreshPictureOfTheDay() {
-        when (val networkResult = fetchPictureOfDayFromInternet()) {
-            is NetworkResult.OnSuccess -> {
-                val result = networkResult.data
-                result?.let {
-                    if (it.mediaType == Constants.IMAGE_MEDIA_TYPE) {
-                        asteroidDatabase.pictureOfDayDao.deletePictureOfTheDay()
-                        asteroidDatabase.pictureOfDayDao.insertImage(it.toEntity())
-                    }
-                }
-            }
-            is NetworkResult.OnError -> {
-                _connectionState.postValue(ConnectionState.Disconnected(networkResult.errorMessage!!))
-            }
-        }
-    }
 
 
     fun getAsteroid(filter: AsteroidsFilter = AsteroidsFilter.WEEK): LiveData<List<Asteroid>> {
@@ -102,28 +64,62 @@ class AsteroidsRepository(
         }
     }
 
-    private suspend fun fetchAsteroidsDataFromInternet(): NetworkResult<List<AsteroidDto>> {
+    suspend fun refreshAsteroidDatabase(): NetworkResult<Unit> {
         return try {
             val response = networkService.getAsteroids()
             val jsonObject: JSONObject = JSONObject(response)
             val asteroidsDto =
                 JsonParser.getInstance().parseJsonResultAsAsteroid(jsonObject = jsonObject)
-            NetworkResult.OnSuccess(asteroidsDto)
+            asteroidDatabase.asteroidDao.insertAll(*asteroidsDto.toEntity())
+            NetworkResult.OnSuccess(Unit)
+
         } catch (e: IOException) {
-            NetworkResult.OnError(errorMessage = context.getString(R.string.un_known_error))
+            NetworkResult.OnError(
+                errorMessage = Resources.getSystem()
+                    .getString(R.string.check_your_internet_connection)
+            )
         } catch (e: HttpException) {
-            NetworkResult.OnError(errorMessage = context.getString(R.string.check_your_internet_connection))
+            NetworkResult.OnError(
+                errorMessage = Resources.getSystem().getString(R.string.server_error)
+            )
+        } catch (e: Exception) {
+            NetworkResult.OnError(
+                errorMessage = Resources.getSystem().getString(R.string.un_known_error)
+            )
         }
     }
 
-    private suspend fun fetchPictureOfDayFromInternet(): NetworkResult<PictureOfDayDto> {
+    suspend fun refreshPictureOfTheDay(): NetworkResult<Unit> {
         return try {
             val response = networkService.getPictureOfDay()
-            NetworkResult.OnSuccess(response)
+            asteroidDatabase.pictureOfDayDao.insertImage(response.toEntity())
+            NetworkResult.OnSuccess(Unit)
         } catch (e: IOException) {
-            NetworkResult.OnError(errorMessage = context.getString(R.string.un_known_error))
+            NetworkResult.OnError(
+                errorMessage = Resources.getSystem()
+                    .getString(R.string.check_your_internet_connection)
+            )
         } catch (e: HttpException) {
-            NetworkResult.OnError(errorMessage = context.getString(R.string.check_your_internet_connection))
+            NetworkResult.OnError(
+                errorMessage = Resources.getSystem().getString(R.string.server_error)
+            )
+        } catch (e: Exception) {
+            NetworkResult.OnError(
+                errorMessage = Resources.getSystem().getString(R.string.un_known_error)
+            )
+        }
+    }
+
+    companion object {
+        private lateinit var INSTANCE: AsteroidsRepository
+        fun getInstance(context: Context): AsteroidsRepository {
+            if (!::INSTANCE.isInitialized) {
+                INSTANCE = AsteroidsRepository(
+                    networkService = AsteroidNewWsApi.getInstance(),
+                    asteroidDatabase = AsteroidDatabase.getInstance(context = context)
+                )
+            }
+            return INSTANCE
         }
     }
 

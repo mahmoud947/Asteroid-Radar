@@ -66,6 +66,15 @@ fun AsteroidDto.toEntity(): AsteroidEntity =
         isPotentiallyHazardous = this.isPotentiallyHazardous
     )
 
+/**
+ * mapping functions
+ * convert List of AsteroidDto to List of AsteroidEntity that will use with room database
+ */
+
+fun List<AsteroidDto>.toEntity(): Array<AsteroidEntity> =
+    map {
+        it.toEntity()
+    }.toTypedArray()
 
 
 
