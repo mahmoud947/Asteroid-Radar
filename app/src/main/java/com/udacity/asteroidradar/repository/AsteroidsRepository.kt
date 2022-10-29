@@ -1,11 +1,10 @@
 package com.udacity.asteroidradar.repository
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.R
+import com.udacity.asteroidradar.data.Constants
 import com.udacity.asteroidradar.data.local.AsteroidDatabase
 import com.udacity.asteroidradar.data.local.entities.toDomain
 import com.udacity.asteroidradar.data.remote.AsteroidNewWsApi
@@ -32,9 +31,9 @@ class AsteroidsRepository(
 
     val pictureOfDay: LiveData<PictureOfDay> =
         Transformations.map(asteroidDatabase.pictureOfDayDao.getPictureOfTheDay()) { pictureOfDay ->
+            pictureOfDay != null
             pictureOfDay?.toDomain()
         }
-
 
     fun getAsteroid(filter: AsteroidsFilter = AsteroidsFilter.WEEK): LiveData<List<Asteroid>> {
         return when (filter) {
@@ -75,15 +74,15 @@ class AsteroidsRepository(
 
         } catch (e: IOException) {
             NetworkResult.OnError(
-                errorMessage = R.string.check_your_internet_connection
+                resErrorMessage = R.string.check_your_internet_connection
             )
         } catch (e: HttpException) {
             NetworkResult.OnError(
-                errorMessage = R.string.server_error
+                resErrorMessage = R.string.server_error
             )
         } catch (e: Exception) {
             NetworkResult.OnError(
-                errorMessage = R.string.un_known_error
+                resErrorMessage = R.string.un_known_error
             )
         }
     }
@@ -91,19 +90,22 @@ class AsteroidsRepository(
     suspend fun refreshPictureOfTheDay(): NetworkResult<Unit> {
         return try {
             val response = networkService.getPictureOfDay()
-            asteroidDatabase.pictureOfDayDao.insertImage(response.toEntity())
+            if (response.mediaType == Constants.IMAGE_MEDIA_TYPE) {
+                asteroidDatabase.pictureOfDayDao.deletePictureOfTheDay()
+                asteroidDatabase.pictureOfDayDao.insertImage(response.toEntity())
+            }
             NetworkResult.OnSuccess(Unit)
         } catch (e: IOException) {
             NetworkResult.OnError(
-                errorMessage = R.string.check_your_internet_connection
+                resErrorMessage = R.string.check_your_internet_connection
             )
         } catch (e: HttpException) {
             NetworkResult.OnError(
-                errorMessage = R.string.server_error
+                resErrorMessage = R.string.server_error
             )
         } catch (e: Exception) {
             NetworkResult.OnError(
-                errorMessage = R.string.un_known_error
+                resErrorMessage = R.string.un_known_error
             )
         }
     }

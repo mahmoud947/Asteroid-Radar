@@ -7,7 +7,7 @@ package com.udacity.asteroidradar.data.util
 * on success
 * on loading
  */
-sealed class NetworkResult<T>(val data: T? = null, val errorMessage: Int? = null) {
+sealed class NetworkResult<T>(val data: T? = null, val resErrorMessage: Int? = null) {
     class OnSuccess<T>(data: T) : NetworkResult<T>(data = data)
-    class OnError<T>(errorMessage: Int) : NetworkResult<T>(errorMessage = errorMessage)
+    class OnError<T>(resErrorMessage: Int) : NetworkResult<T>(resErrorMessage = resErrorMessage)
 }

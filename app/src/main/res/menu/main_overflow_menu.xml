@@ -3,11 +3,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/week_menu"
+        android:contentDescription="@string/filter_with_week_asteroids"
         android:title="@string/next_week_asteroids" />
     <item
+        android:contentDescription="@string/filter_with_today_asteroids"
         android:id="@+id/today_menu"
         android:title="@string/today_asteroids" />
     <item
+        android:contentDescription="@string/filter_with_saved_asteroids"
         android:id="@+id/saved_menu"
         android:title="@string/saved_asteroids" />
 </menu>

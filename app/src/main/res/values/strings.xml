@@ -25,4 +25,10 @@
     <string name="check_your_internet_connection">please check your internet connection and try agn !</string>
     <string name="server_error">server error please try again later</string>
     <string name="you_are_online">you are online</string>
+    <string name="filter_with_week_asteroids">filter with week asteroids</string>
+    <string name="filter_with_today_asteroids">filter with today asteroids</string>
+    <string name="filter_with_saved_asteroids">filter with saved asteroids</string>
+    <string name="this_asteroid_is_not_potentially_hazardous">this asteroid is not potentially hazardous</string>
+    <string name="this_asteroid_is_potentially_hazardous">this asteroid is potentially hazardous</string>
+    <string name="au_unit_definition">(au) unit definition</string>
 </resources>

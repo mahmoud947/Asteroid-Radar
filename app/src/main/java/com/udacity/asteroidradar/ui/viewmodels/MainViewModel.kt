@@ -1,27 +1,16 @@
 package com.udacity.asteroidradar.ui.viewmodels
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.udacity.asteroidradar.R
-import com.udacity.asteroidradar.data.Constants
-import com.udacity.asteroidradar.data.local.AsteroidDatabase
-import com.udacity.asteroidradar.data.remote.AsteroidNewWsApi
 import com.udacity.asteroidradar.data.util.ConnectionState
 import com.udacity.asteroidradar.data.util.NetworkResult
 import com.udacity.asteroidradar.domain.model.Asteroid
-import com.udacity.asteroidradar.domain.model.PictureOfDay
 import com.udacity.asteroidradar.repository.AsteroidsFilter
 import com.udacity.asteroidradar.repository.AsteroidsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.system.measureTimeMillis
 
 class MainViewModel(
     appContext: Context
@@ -37,16 +26,22 @@ class MainViewModel(
         repository.getAsteroid(it)
     }
 
+
     private val _connectionState: MutableLiveData<ConnectionState?> = MutableLiveData(null)
     val connectionState: LiveData<ConnectionState?> get() = _connectionState
 
     val pictureOfDay = repository.pictureOfDay
 
 
+    private val _isError: MutableLiveData<Boolean> = MutableLiveData(true)
+    val isLoading: LiveData<Boolean>
+        get() = asteroids.map {
+            it.isEmpty() && _isError.value!!
+        }
+
     init {
         viewModelScope.launch {
             handelError(repository.refreshAsteroidDatabase(), context = appContext)
-
         }
     }
 
@@ -68,17 +63,32 @@ class MainViewModel(
     }
 
 
-    private suspend fun handelError(networkResult: NetworkResult<Unit>,context: Context) {
+    private suspend fun handelError(networkResult: NetworkResult<Unit>, context: Context) {
         withContext(Dispatchers.IO) {
             when (networkResult) {
 
                 is NetworkResult.OnError -> {
-                    _connectionState.postValue(ConnectionState.Disconnected(message = context.getString(networkResult.errorMessage!!)))
+                    _connectionState.postValue(
+                        ConnectionState.Disconnected(
+                            message = context.getString(
+                                networkResult.resErrorMessage!!
+                            )
+                        )
+                    )
+                    _isError.postValue(false)
                 }
                 is NetworkResult.OnSuccess -> {
                     repository.refreshPictureOfTheDay()
-                    _connectionState.postValue(ConnectionState.Connected(message = context.getString(R.string.you_are_online)))
+                    _connectionState.postValue(
+                        ConnectionState.Connected(
+                            message = context.getString(
+                                R.string.you_are_online
+                            )
+                        )
+                    )
+                    _isError.postValue(false)
                 }
+
             }
         }
     }

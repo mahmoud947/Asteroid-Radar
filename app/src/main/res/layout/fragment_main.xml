@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.udacity.asteroidradar.ui.viewmodels.MainViewModel" />
@@ -25,25 +26,27 @@
 
             <ImageView
                 android:id="@+id/activity_main_image_of_the_day"
+                imageUrl="@{viewModel.pictureOfDay.url}"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
+                android:contentDescription="@{viewModel.pictureOfDay.title}"
                 android:scaleType="centerCrop"
-                imageUrl="@{viewModel.pictureOfDay.url}"
-                app:srcCompat="@drawable/placeholder_picture_of_day"
-                android:contentDescription="@{viewModel.pictureOfDay.title}" />
+                app:srcCompat="@drawable/placeholder_picture_of_day" />
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:textColor="@android:color/white"
-                android:textStyle="bold"
-                android:textSize="20sp"
                 android:layout_gravity="bottom"
                 android:background="#55010613"
-                android:text="@{viewModel.pictureOfDay.title}"/>
+                android:contentDescription="@{viewModel.pictureOfDay.title}"
+                android:padding="16dp"
+
+                android:text="@{viewModel.pictureOfDay.title}"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -57,18 +60,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/activity_main_image_of_the_day_layout"
             app:layout_constraintVertical_bias="0.0"
-            tools:listitem="@layout/asteroid_item"
-            />
+            tools:listitem="@layout/asteroid_item" />
 
         <ProgressBar
             android:id="@+id/status_loading_wheel"
+            goneIfTrue="@{viewModel.isLoading()}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

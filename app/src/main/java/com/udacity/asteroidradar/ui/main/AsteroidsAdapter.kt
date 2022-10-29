@@ -16,7 +16,7 @@ class AsteroidsAdapter(
 
     companion object DiffCallback : DiffUtil.ItemCallback<Asteroid>() {
         override fun areItemsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean =
-            oldItem.id==newItem.id
+            oldItem.id == newItem.id
 
 
         override fun areContentsTheSame(oldItem: Asteroid, newItem: Asteroid): Boolean =
@@ -35,24 +35,22 @@ class AsteroidsAdapter(
 
     override fun onBindViewHolder(holder: AsteroidViewHolder, position: Int) {
         val asteroid = getItem(position)
-        holder.bind(asteroid = asteroid)
-        holder.itemView.setOnClickListener {
-            onClickListener.clickListener(asteroid)
-        }
+        holder.bind(asteroid = asteroid, clickListener = onClickListener)
     }
 
 
     class AsteroidViewHolder(private val binding: AsteroidItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(asteroid: Asteroid) {
+        fun bind(asteroid: Asteroid, clickListener: OnClickListener) {
             binding.asteroid = asteroid
             binding.executePendingBindings()
+            binding.clickListener = clickListener
         }
     }
 }
 
 class OnClickListener(val clickListener: ((asteroid: Asteroid) -> Unit)) {
-    fun onClick(asteroid: Asteroid){
+    fun onClick(asteroid: Asteroid) {
         clickListener(asteroid)
     }
 }

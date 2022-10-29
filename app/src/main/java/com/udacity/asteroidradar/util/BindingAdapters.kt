@@ -1,8 +1,8 @@
 package com.udacity.asteroidradar.util
 
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.udacity.asteroidradar.R
@@ -44,12 +44,24 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
 }
 
 @BindingAdapter("imageUrl")
-fun bindImageUrl(imageView: ImageView,url:String?){
+fun bindImageUrl(imageView: ImageView, url: String?) {
     url?.let {
-        val imgUri = url.toUri().buildUpon().scheme("https").build()
         Glide.with(imageView.context)
-            .load(imgUri)
+            .load(url)
             .placeholder(R.drawable.placeholder_picture_of_day)
             .into(imageView)
     }
+}
+
+@BindingAdapter("goneIfTrue")
+fun goneIfNotEmpty(view: View, isGone: Boolean) {
+    view.visibility = if (isGone) View.VISIBLE else View.GONE
+
+}
+
+@BindingAdapter("setAsteroidHazardousContentDes")
+fun setAsteroidHazardousContentDes(imageView: ImageView, isPotentiallyHazardous: Boolean) {
+    imageView.contentDescription =
+        if (isPotentiallyHazardous) imageView.context.getString(R.string.this_asteroid_is_potentially_hazardous)
+        else imageView.context.getString(R.string.this_asteroid_is_potentially_hazardous)
 }
