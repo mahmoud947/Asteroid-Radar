@@ -2,12 +2,10 @@ package com.udacity.asteroidradar.data.local
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.udacity.asteroidradar.data.local.entities.AsteroidEntity
-import com.udacity.asteroidradar.data.local.entities.PictureOfDayEntity
 
 @Dao
 interface AsteroidDao {
@@ -23,7 +21,7 @@ interface AsteroidDao {
     @Query("SELECT * FROM asteroid_entity WHERE closeApproachDate BETWEEN :start AND :end ORDER BY closeApproachDate DESC")
     fun getWeekAsteroids(start: String, end: String): LiveData<List<AsteroidEntity>>
 
-    @Query("DELETE FROM asteroid_entity")
-    suspend fun clear()
+    @Query("DELETE FROM asteroid_entity WHERE closeApproachDate <:day")
+    suspend fun deleteAsteroidsBeforeToday(day: String)
 
 }

@@ -14,6 +14,8 @@ import com.udacity.asteroidradar.data.util.JsonParser
 import com.udacity.asteroidradar.data.util.NetworkResult
 import com.udacity.asteroidradar.domain.model.Asteroid
 import com.udacity.asteroidradar.domain.model.PictureOfDay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
@@ -107,6 +109,13 @@ class AsteroidsRepository(
             NetworkResult.OnError(
                 resErrorMessage = R.string.un_known_error
             )
+        }
+    }
+
+    suspend fun deleteAsteroidsBeforeToday() {
+        withContext(Dispatchers.IO){
+            val today: String = JsonParser.getInstance().getNextSevenDays().first()
+            asteroidDatabase.asteroidDao.deleteAsteroidsBeforeToday(day = today)
         }
     }
 

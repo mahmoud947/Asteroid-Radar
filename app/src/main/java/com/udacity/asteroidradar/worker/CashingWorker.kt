@@ -16,7 +16,10 @@ class CashingWorker(appContext: Context, params: WorkerParameters) :
         val repository = AsteroidsRepository.getInstance(applicationContext)
 
         return when (repository.refreshAsteroidDatabase()) {
-            is NetworkResult.OnSuccess -> Result.success()
+            is NetworkResult.OnSuccess -> {
+                repository.deleteAsteroidsBeforeToday()
+                Result.success()
+            }
             is NetworkResult.OnError -> Result.retry()
         }
 
