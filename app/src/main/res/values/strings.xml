@@ -2,7 +2,7 @@
     <string name="app_name">Asteroid Radar</string>
 
     <string name="next_week_asteroids">View week asteroids</string>
-    <string name="today_asteroids">View today asteroids</string>
+    <string name="today_asteroids">View today\'s asteroids</string>
     <string name="saved_asteroids">View saved asteroids</string>
     <string name="close_approach_data_title">Close approach date</string>
     <string name="absolute_magnitude_title">Absolute magnitude</string>
@@ -22,9 +22,10 @@
 
 <!--Errors Message-->
     <string name="un_known_error">Un Known Error!</string>
-    <string name="check_your_internet_connection">please check your internet connection and try agn !</string>
+    <string name="check_your_internet_connection">please check your internet connection and try again !</string>
     <string name="server_error">server error please try again later</string>
     <string name="you_are_online">you are online</string>
+<!--content description-->
     <string name="filter_with_week_asteroids">filter with week asteroids</string>
     <string name="filter_with_today_asteroids">filter with today asteroids</string>
     <string name="filter_with_saved_asteroids">filter with saved asteroids</string>

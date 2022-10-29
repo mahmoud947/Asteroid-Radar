@@ -49,7 +49,7 @@ class JsonParser {
     @SuppressLint("SimpleDateFormat")
     fun getNextSevenDays(): ArrayList<String> {
         val days: ArrayList<String> = arrayListOf()
-        val simpleDateFormat: SimpleDateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT)
+        val simpleDateFormat: SimpleDateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT,Locale.ENGLISH)
         for (i in 0..Constants.DEFAULT_END_DATE_DAYS) {
             val calender: Calendar = GregorianCalendar()
             calender.add(Calendar.DATE, i)
