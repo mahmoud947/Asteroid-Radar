@@ -36,6 +36,7 @@ class MainViewModel(
     private val _isError: MutableLiveData<Boolean> = MutableLiveData(true)
     val isLoading: LiveData<Boolean>
         get() = asteroids.map {
+            it!=null
             it.isEmpty() && _isError.value!!
         }
 
