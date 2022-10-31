@@ -1,6 +1,5 @@
-# Project Title
+# Asteroid Radar
 
-Asteroid Radar
 
 ## Getting Started
 
